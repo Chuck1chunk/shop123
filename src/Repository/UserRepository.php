@@ -19,6 +19,23 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    /**
+     * @return User[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function showAllUsers() : array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT * FROM user';
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

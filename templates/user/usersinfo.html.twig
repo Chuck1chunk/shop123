@@ -1,0 +1,11 @@
+{% for user in users %}
+    <h3>Id</h3>
+    {{ user.id }}
+    <h3>Name</h3>
+    {{ user.name }}
+    <br>
+    <br>
+    <a href="/user/edit/{{ user.id }}">Edit</a>
+    <a href="/user/delete/{{ user.id }}">Remove</a>
+    <hr>
+{% endfor %}

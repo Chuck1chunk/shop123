@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 
+use App\Form\UserEditType;
 use App\Form\UserLoginType;
 use App\Form\UserType;
 
@@ -30,7 +31,7 @@ class UserController extends Controller
      * @Route("user/signup")
      */
 
-    public function sigup(Request $request)
+    public function signup(Request $request)
     {
         $user = new User();
 
@@ -109,25 +110,66 @@ class UserController extends Controller
     }
 
     /**
+     * @Route("/product/{id}", name="product_show")
+     */
+    public function showAction($id)
+    {
+        $product = $this->getDoctrine()
+            ->getRepository(Product::class)
+            ->find($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException(
+                'No product found for id '.$id
+            );
+        }
+
+        return new Response('Check out this great product: '.$product->getName());
+
+    }
+
+
+    /**
+     * @Route("/user/show", name="user_show")
+     */
+    public function showAllUsers()
+    {
+        $users = $this->getDoctrine()->getRepository(User::class)
+            ->findAll();
+        //->showAllUsers();
+
+        return $this->render('user/usersinfo.html.twig', [
+            'users' => $users
+        ]);
+
+    }
+
+    /**
      * @Route("/user/edit/{id}")
      */
-    public function update($id)
+    public function update(Request $request ,$id)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(User::class)->find($id);
 
 
-        if (!$user) {
-            throw $this->createNotFoundException(
-                'No user found for id '.$id
-            );
+        $form = $this->createForm(UserEditType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $name = $user->getName();
+            $pwd  = $user->getPassword();
+
+            $user->setName($name);
+            $user->setPassword($pwd);
+
+            $em->flush();
+
+            return $this->redirectToRoute('user_show');
         }
 
-        $user->setName('Alex');
-        $em->flush();
-
-        return $this->redirectToRoute('user_show', [
-            'id' => $user->getId(),
+        return $this->render('user/edit.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
@@ -148,10 +190,7 @@ class UserController extends Controller
         $em->remove($user);
         $em->flush();
 
-        return $this->redirectToRoute('user_show', [
-            'user is deleted'
-        ]);
-    }
+        return $this->redirectToRoute("user_show");    }
 
 
 
