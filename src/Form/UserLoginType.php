@@ -21,7 +21,7 @@ class UserLoginType extends AbstractType
             ->add('name')
             ->add('email', EmailType::class, [
                 'attr' => [
-                    'placeholder' => 'Enter your name'
+                    'placeholder' => 'Enter your email'
                 ]
             ])
             ->add('password', PasswordType::class, [

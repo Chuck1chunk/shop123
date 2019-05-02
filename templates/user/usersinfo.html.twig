@@ -1,11 +1,16 @@
-{% for user in users %}
-    <h3>Id</h3>
-    {{ user.id }}
-    <h3>Name</h3>
-    {{ user.name }}
-    <br>
-    <br>
-    <a href="/user/edit/{{ user.id }}">Edit</a>
-    <a href="/user/delete/{{ user.id }}">Remove</a>
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Users</h1>
     <hr>
-{% endfor %}
+    {% for user in users %}
+        <h4>Id</h4>
+        {{ user.id }}
+        <h4>Name<h4>
+        {{ user.name }}
+        <br>
+        <br>
+        <button class="btn btn-info"><a href="/user/edit/{{ user.id }}">Edit</a></button>
+        <button class="btn btn-danger"><a href="/user/delete/{{ user.id }}">Remove</a></button>
+        <hr>
+    {% endfor %}
+{% endblock %}

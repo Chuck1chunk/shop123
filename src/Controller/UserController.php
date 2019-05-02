@@ -49,20 +49,29 @@ class UserController extends Controller
             $pwd   = $user->getPassword();
 
             $em = $this->getDoctrine()->getManager();
+            $res = $em->getRepository(User::class)->findOneBy([
+                'email' => $email
+            ]);
 
-            $user->setName($name);
-            $user->setEmail($email);
-            $user->setPassword($pwd);
-            $user->setRole('user');
+            if (!$res) {
+                $user->setName($name);
+                $user->setEmail($email);
+                $user->setPassword($pwd);
+                $user->setRole('user');
 
-            $em->persist($user);
-            $em->flush();
+                $em->persist($user);
+                $em->flush();
 
-            //return new Response('Success');
-            return $this->redirectToRoute('user_login');
-
+                //return $this->redirectToRoute('user_login');
+                return $this->render('user/cabinet.html.twig', [
+                    'id' => $user->getId(),
+                    'name' => $name,
+                    'password' => $pwd,
+                    'email' => $email
+                ]);
+            }
+            return new Response('Email is already taken');
         }
-
         return $this->render('user/signup.html.twig', [
             'form' => $form->createView(),
         ]);
