@@ -5,7 +5,6 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use Psr\Log\LoggerInterface;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
