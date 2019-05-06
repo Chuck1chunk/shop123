@@ -6,6 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 use Psr\Log\LoggerInterface;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
@@ -109,13 +111,4 @@ class Product
         $this->quantitu = $quantitu;
     }
 
-    /**
-     * @Route("/products")
-     */
-    public function listAction(LoggerInterface $logger)
-    {
-        $logger->info('Look! I just used a service');
-
-        // ...
-    }
 }

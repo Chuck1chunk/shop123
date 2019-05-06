@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Role;
 use App\Entity\User;
 
 use App\Form\UserEditType;
@@ -34,19 +35,21 @@ class UserController extends Controller
     public function signup(Request $request)
     {
         $user = new User();
+        $role = new Role();
 
         /*Form making*/
         $form = $this->createForm(UserType::class, $user);
-
         $form->handleRequest($request);
 
         /*Checking form data for valid */
         if ($form->isSubmitted() && $form->isValid()) {
             //if ok
 
-            $name  = $user->getName();
-            $email = $user->getEmail();
-            $pwd   = $user->getPassword();
+            $name    = $user->getName();
+            $email   = $user->getEmail();
+            $pwd     = $user->getPassword();
+            $address = $user->getAddress();
+            $index   = $user->getPostIndex();
 
             $em = $this->getDoctrine()->getManager();
             $res = $em->getRepository(User::class)->findOneBy([
@@ -54,20 +57,31 @@ class UserController extends Controller
             ]);
 
             if (!$res) {
+
                 $user->setName($name);
                 $user->setEmail($email);
                 $user->setPassword($pwd);
-                $user->setRole('user');
+                $user->setAddress($address);
+                $user->setPostIndex($index);
+                $user->setImage('SomeImage');
 
                 $em->persist($user);
                 $em->flush();
 
-                //return $this->redirectToRoute('user_login');
+
+                $role->setUserId($user->getId());
+                $role->setRole('user');
+
+                $em->persist($role);
+                $em->flush();
+
                 return $this->render('user/cabinet.html.twig', [
                     'id' => $user->getId(),
                     'name' => $name,
                     'password' => $pwd,
-                    'email' => $email
+                    'email' => $email,
+                    'address' => $address,
+                    'PostIndex' => $index
                 ]);
             }
             return new Response('Email is already taken');
@@ -107,34 +121,13 @@ class UserController extends Controller
                 return $this->render('user/cabinet.html.twig', [
                     'name' => $name,
                 ]);
-            } else {
-                return new Response('404');
             }
-
+            return new Response('404');
         }
 
         return $this->render('user/login.html.twig', [
            'form' => $form->createView(),
         ]);
-    }
-
-    /**
-     * @Route("/product/{id}", name="product_show")
-     */
-    public function showAction($id)
-    {
-        $product = $this->getDoctrine()
-            ->getRepository(Product::class)
-            ->find($id);
-
-        if (!$product) {
-            throw $this->createNotFoundException(
-                'No product found for id '.$id
-            );
-        }
-
-        return new Response('Check out this great product: '.$product->getName());
-
     }
 
 
@@ -147,10 +140,10 @@ class UserController extends Controller
             ->findAll();
         //->showAllUsers();
 
-        return $this->render('user/usersinfo.html.twig', [
-            'users' => $users
-        ]);
 
+        return $this->render('user/usersinfo.html.twig', [
+            'users' => $users,
+        ]);
     }
 
     /**
@@ -199,8 +192,7 @@ class UserController extends Controller
         $em->remove($user);
         $em->flush();
 
-        return $this->redirectToRoute("user_show");    }
-
-
+        return $this->redirectToRoute("user_show");
+    }
 
 }

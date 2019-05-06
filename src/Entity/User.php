@@ -33,10 +33,22 @@ class User
      */
     private $password;
 
+
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $role;
+    private $image;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $address;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $PostIndex;
+
 
     public function getId(): ?int
     {
@@ -82,16 +94,41 @@ class User
         return $this;
     }
 
-    //Role
-    public function getRole(): ?string
+    public function getImage(): ?string
     {
-        return $this->role;
+        return $this->image;
     }
 
-    public function setRole(string $role): self
+    public function setImage(string $image): self
     {
-        $this->role = $role;
+        $this->image = $image;
 
         return $this;
     }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(string $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getPostIndex(): ?int
+    {
+        return $this->PostIndex;
+    }
+
+    public function setPostIndex($PostIndex): self
+    {
+        $this->PostIndex = $PostIndex;
+
+        return $this;
+    }
+
+
 }

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Products</h1>
+    <button class="btn btn-success"><a href="/product/add">Add new product</a></button>
+    <hr>
+    {% for product in products %}
+        <h4>Id</h4>
+        {{ product.id }}
+        <h4>Name<h4>
+        {{ product.name }}
+        <h4>Price</h4>
+        {{ product.price }}
+        <h4>Description</h4>
+        {{ product.description }}
+        <br>
+        <br>
+        <button class="btn btn-info"><a href="/product/edit/{{ product.id }}">Edit</a></button>
+        <button class="btn btn-danger"><a href="/product/delete/{{ product.id }}">Remove</a></button>
+        <hr>
+    {% endfor %}
+{% endblock %}

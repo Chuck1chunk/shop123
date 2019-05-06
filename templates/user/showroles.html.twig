@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Users Roles</h1>
+    <button class="btn btn-info"><a href="/roles/add/">Add</a></button>
+    <hr>
+    {% for role in roles %}
+        <h4>Id</h4>
+        {{ role.id }}
+        <h4>Name<h4>
+        {{ role.role }}
+        <h4>User id</h4>
+        {{ role.userId }}
+        <br>
+        <br>
+        <button class="btn btn-info"><a href="/roles/edit/{{ role.id }}">Edit</a></button>
+        <hr>
+    {% endfor %}
+{% endblock %}
