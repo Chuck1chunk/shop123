@@ -36,9 +36,9 @@ class ProductAddType extends AbstractType
              * Получить имя категории кинуть его в продуктКонтроллер и там за этим именем найти айди
              * категории и вставить его в таблицу продуктов
              */
-            ->add('', EntityType::class, [
-                'class' => Category::class,
-                'choices' => $category->getName()
+            ->add('category', EntityType::class, [
+                'class' => 'App\Entity\Category',
+                //'choices' => $category->getName()
             ])
             ->add('save', SubmitType::class)
         ;

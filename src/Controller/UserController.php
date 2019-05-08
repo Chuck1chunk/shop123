@@ -13,15 +13,8 @@ use App\Form\UserType;
 
 use function MongoDB\BSON\fromJSON;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
-
-
 
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Email;
@@ -144,7 +137,7 @@ class UserController extends Controller
     /**
      * @Route("/user/reset_password")
      */
-    public function resetPassword(Request $request, \Swift_Mailer $mailer)
+    public function sendResetPasswordMail(Request $request, \Swift_Mailer $mailer)
     {
         $user = new User();
 
@@ -229,7 +222,6 @@ class UserController extends Controller
 
             return $this->redirectToRoute('user_show');
         }
-
         return $this->render('user/edit.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -248,7 +240,6 @@ class UserController extends Controller
                 'No user found for id '.$id
             );
         }
-
         $em->remove($user);
         $em->flush();
 

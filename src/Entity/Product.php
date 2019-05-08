@@ -45,6 +45,7 @@ class Product
     private $categoryId;
 
 
+    private $category;
 
     public function getId(): ?int
     {
@@ -126,5 +127,24 @@ class Product
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param mixed $categoryName
+     */
+    public function setCategory($category): void
+    {
+        $this->category = $category;
+    }
+
+
+
 
 }

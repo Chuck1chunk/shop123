@@ -2,21 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
 use App\Entity\Product;
 use App\Form\CategoryAddType;
 use App\Form\ProductAddType;
 use App\Form\ProductEditType;
 
-
 use function MongoDB\BSON\fromJSON;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;;
 
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,12 +35,11 @@ class ProductController extends Controller
     public function add(Request $request)
     {
         $product = new Product();
-        $category = new Category();
-//        $category = $this->getDoctrine()->getRepository(Category::class)
-//                    ->findAll();
 
         $form = $this->createForm(ProductAddType::class, $product);
         $form->handleRequest($request);
+
+        $em = $this->getDoctrine()->getManager();
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -55,30 +47,22 @@ class ProductController extends Controller
             $price  = $product->getPrice();
             $description = $product->getDescription();
             $quantity = $product->getQuantitu();
+            $category = $product->getCategory();
 
-            //$categoryid = $product->getCategoryId();
-            $categoryName = $category->getName();
-
-            var_dump($categoryName);
-
-            $em = $this->getDoctrine()->getManager();
-            $res = $em->getRepository(Product::class)->findOneBy([
+            $result = $em->getRepository(Product::class)->findOneBy([
                 'name' => $name
             ]);
 
-            if (!$res) {
+            if (!$result) {
                 $product->setName($name);
                 $product->setPrice($price);
                 $product->setDescription($description);
                 $product->setQuantitu($quantity);
-
-                /* !!!!!!!!!!!!!!HERE!!!!!!!!!!!!!!! */
-                //$product->setCategoryId($categoryid);
+                $product->setCategoryId($category->getId());
 
 
                 $em->persist($product);
                 $em->flush();
-                //
                 return $this->redirectToRoute('product_show');
             }
             return new Response('This product is already added');
@@ -96,8 +80,7 @@ class ProductController extends Controller
         $em = $this->getDoctrine()->getManager();
         $product = $em->getRepository(Product::class)->find($id);
 
-
-        $form = $this->createForm(ProductEditType::class, $product);
+        $form = $this->createForm(ProductAddType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -105,12 +88,14 @@ class ProductController extends Controller
             $price  = $product->getPrice();
             $description = $product->getDescription();
             $quantity = $product->getQuantitu();
+            $category = $product->getCategory();
 
 
             $product->setName($name);
             $product->setPrice($price);
             $product->setDescription($description);
             $product->setQuantitu($quantity);
+            $product->setCategoryId($category->getId());
 
             $em->flush();
 
@@ -143,6 +128,4 @@ class ProductController extends Controller
             'prduct is deleted'
         ]);
     }
-
-
 }
