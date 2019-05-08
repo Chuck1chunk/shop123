@@ -18,7 +18,7 @@ class CategoryController extends AbstractController
         $em = $this->getDoctrine()->getManager();
 
         $category = new Category();
-        $category->setName('T-shirts');
+        $category->setName('Hoodies');
 
         $em->persist($category);
 
@@ -32,8 +32,18 @@ class CategoryController extends AbstractController
     /**
      * @Route("/category/{id}", name="category_show")
      */
-    public function show(Category $category) {
+    public function show(Category $category)
+    {
         return new Response('Check out this greate category: '.$category->getName());
+    }
+
+    public function getAllCategories()
+    {
+
+        $categories = $this->getDoctrine()->getRepository(Category::class)
+            ->findAll();
+
+        return $categories;
     }
 
     /**

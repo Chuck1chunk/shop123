@@ -2,15 +2,15 @@
 {% block body %}
 
         {% block greeeting %}
-            <h1>Welcome {{ name }}</h1>
-            <h2>Your password {{ password }}</h2>
-            <h2>Your email {{ email }}</h2>
-            <h2>Your address {{ address }}</h2>
-            <h2>Your index {{ PostIndex }}</h2>
-            <h1>Your id {{ id }}</h1>
+            <h1>Welcome {{ user.name }}</h1>
+            <h2>Your password {{ user.password }}</h2>
+            <h2>Your email {{ user.email }}</h2>
+            <h2>Your address {{ user.address }}</h2>
+            <h2>Your index {{ user.PostIndex }}</h2>
+            <h1>Your id {{ user.id }}</h1>
         {% endblock %}
         <h3>You can change your data</h3>
         <button class="btn btn-info">
-            <a href="/user/edit/{{ id }}">Edit</a>
+            <a href="/user/edit/{{ user.id }}">Edit</a>
         </button>
  {% endblock %}

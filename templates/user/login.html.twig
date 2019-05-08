@@ -4,4 +4,7 @@
     {{ form_start(form) }}
     {{ form_widget(form) }}
     {{ form_end(form) }}
+    {% if (user == false) %}
+        <a href="/user/reset_password">Reset password</a>
+    {% endif %}
 {% endblock %}

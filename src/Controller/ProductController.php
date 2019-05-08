@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Product;
+use App\Form\CategoryAddType;
 use App\Form\ProductAddType;
 use App\Form\ProductEditType;
 
@@ -21,7 +23,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends Controller
 {
-
     /**
      * @Route("/product/show", name="product_show")
      */
@@ -41,6 +42,9 @@ class ProductController extends Controller
     public function add(Request $request)
     {
         $product = new Product();
+        $category = new Category();
+//        $category = $this->getDoctrine()->getRepository(Category::class)
+//                    ->findAll();
 
         $form = $this->createForm(ProductAddType::class, $product);
         $form->handleRequest($request);
@@ -52,6 +56,11 @@ class ProductController extends Controller
             $description = $product->getDescription();
             $quantity = $product->getQuantitu();
 
+            //$categoryid = $product->getCategoryId();
+            $categoryName = $category->getName();
+
+            var_dump($categoryName);
+
             $em = $this->getDoctrine()->getManager();
             $res = $em->getRepository(Product::class)->findOneBy([
                 'name' => $name
@@ -62,6 +71,10 @@ class ProductController extends Controller
                 $product->setPrice($price);
                 $product->setDescription($description);
                 $product->setQuantitu($quantity);
+
+                /* !!!!!!!!!!!!!!HERE!!!!!!!!!!!!!!! */
+                //$product->setCategoryId($categoryid);
+
 
                 $em->persist($product);
                 $em->flush();

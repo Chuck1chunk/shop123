@@ -21,6 +21,12 @@ class Category
      */
     private $name;
 
+    public function __toString()
+    {
+        // TODO: Implement __toString() method.
+        return $this->name;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -37,4 +43,5 @@ class Category
 
         return $this;
     }
+
 }
