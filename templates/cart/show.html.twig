@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container">
+    <h4>Product</h4>
+    {% if cart %}
+        <div class="row">
+
+            <div class="col-lg-6">
+            {% for product in products %}
+                <div class="row">
+                    {{ product.name }}
+                </div>
+                <hr>
+            {% endfor %}
+            </div>
+
+            <div class="col-lg-6">
+            {% for item in cart %}
+                <div class="row">
+                    <a href="/cart/remove/{{ item.id }}">&times;</a>
+                </div>
+                <hr>
+            {% endfor %}
+            </div>
+
+        </div>
+    {% else %}
+        <span>Your cart is empy</span>
+    {% endif %}
+    </div>{#    container#}
+
+{% endblock %}

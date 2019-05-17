@@ -20,6 +20,17 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    /**
+     * @param string|null $term
+     */
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
+        return $qb
+            ->orderBy('c.createdAt', 'DESC')
+            ;
+    }
+
+
     // /**
     //  * @return Product[] Returns an array of Product objects
     //  */

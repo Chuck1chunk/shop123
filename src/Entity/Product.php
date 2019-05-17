@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -46,6 +47,14 @@ class Product
 
 
     private $category;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $image;
+
+
+    private $file;
 
     public function getId(): ?int
     {
@@ -142,6 +151,36 @@ class Product
     public function setCategory($category): void
     {
         $this->category = $category;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+
+
+    /**
+     * @return mixed
+     */
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    /**
+     * @param mixed $file
+     */
+    public function setFile($file): void
+    {
+        $this->file = $file;
     }
 
 

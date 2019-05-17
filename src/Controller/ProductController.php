@@ -2,130 +2,71 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Product;
 use App\Form\CategoryAddType;
 use App\Form\ProductAddType;
 use App\Form\ProductEditType;
+use App\Service\FileUploader;
 
 use function MongoDB\BSON\fromJSON;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;;
+use Symfony\Component\HttpFoundation\Response;
 
+use Knp\Component\Pager\PaginatorInterface;
+
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends Controller
 {
     /**
-     * @Route("/product/show", name="product_show")
+     * @Route("/", name="latestproduct")
      */
-    public function showAllProducts()
+    public function getLatestProducts(Request $request, PaginatorInterface $paginator, Session $session)
     {
         $products = $this->getDoctrine()->getRepository(Product::class)
-                        ->findAll();
+            ->findAll();
 
-        return $this->render('product/productslist.html.twig', [
-            'products' => $products,
+        $categories = $this->getDoctrine()->getRepository(Category::class)
+            ->findAll();
+
+        $pagination = $paginator->paginate(
+            $products, /* query NOT result */
+            $request->query->getInt('page', 1),
+            12
+        );
+
+        return $this->render('product/latestproducts.html.twig', [
+            'categories' => $categories,
+            'pagination' => $pagination,
         ]);
     }
 
     /**
-     * @Route("/product/add", name="product_add")
+     *@Route("/product/getby/category/{categoryId}")
      */
-    public function add(Request $request)
+    public function getProductListByCategory(Request $request, $categoryId, PaginatorInterface $paginator)
     {
-        $product = new Product();
-
-        $form = $this->createForm(ProductAddType::class, $product);
-        $form->handleRequest($request);
-
-        $em = $this->getDoctrine()->getManager();
-
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $name = $product->getName();
-            $price  = $product->getPrice();
-            $description = $product->getDescription();
-            $quantity = $product->getQuantitu();
-            $category = $product->getCategory();
-
-            $result = $em->getRepository(Product::class)->findOneBy([
-                'name' => $name
+        $products = $this->getDoctrine()->getRepository(Product::class)
+            ->findBy([
+                'categoryId' => $categoryId
             ]);
+        $categories = $this->getDoctrine()->getRepository(Category::class)
+            ->findAll();
 
-            if (!$result) {
-                $product->setName($name);
-                $product->setPrice($price);
-                $product->setDescription($description);
-                $product->setQuantitu($quantity);
-                $product->setCategoryId($category->getId());
+        $pagination = $paginator->paginate(
+            $products, /* query NOT result */
+            $request->query->getInt('page', 1)/*page number*/,
+            12/*limit per page*/
+        );
 
-
-                $em->persist($product);
-                $em->flush();
-                return $this->redirectToRoute('product_show');
-            }
-            return new Response('This product is already added');
-        }
-        return $this->render('product/add.html.twig', [
-            'form' => $form->createView(),
+        return $this->render('product/latestproducts.html.twig', [
+            'categories' => $categories,
+            'pagination' => $pagination,
         ]);
     }
 
-    /**
-     * @Route("/product/edit/{id}")
-     */
-    public function update(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $product = $em->getRepository(Product::class)->find($id);
 
-        $form = $this->createForm(ProductAddType::class, $product);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $name = $product->getName();
-            $price  = $product->getPrice();
-            $description = $product->getDescription();
-            $quantity = $product->getQuantitu();
-            $category = $product->getCategory();
-
-
-            $product->setName($name);
-            $product->setPrice($price);
-            $product->setDescription($description);
-            $product->setQuantitu($quantity);
-            $product->setCategoryId($category->getId());
-
-            $em->flush();
-
-            return $this->redirectToRoute('product_show');
-        }
-
-        return $this->render('product/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/product/delete/{id}")
-     */
-    public function remove($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $product = $em->getRepository(Product::class)->find($id);
-
-        if (!$product) {
-            throw $this->createNotFoundException(
-                'No product found for id '.$id
-            );
-        }
-
-        $em->remove($product);
-        $em->flush();
-
-        return $this->redirectToRoute('product_show', [
-            'prduct is deleted'
-        ]);
-    }
 }

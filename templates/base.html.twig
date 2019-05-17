@@ -7,13 +7,47 @@
             <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
                   integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
                   crossorigin="anonymous">
+            {{ encore_entry_link_tags('app') }}
+            <link rel="stylesheet" href="../public/build/app.css">
         {% endblock %}
     </head>
     <body>
-        <div class="container">
-            {% block body %}{% endblock %}
-            {% block javascripts %}{% endblock %}
-        </div>
-
+        <header class="header">
+            <nav class="nav" id="nav">
+                <ul>
+                    <li><a href="/">Main</a></li>
+                    {% if app.session.get('user') %}
+                        <li><a href="/user/cabinet">My account</a></li>
+                        <li><a href="{{ path('user_logout') }}">Log out</a></li>
+                        <li><a href="/cart/show/{{ app.session.get('user').id }}">Cart
+                                (<span id="cart-count"></span>)</a>
+                        {# #}
+                        </li>
+                    {% else %}
+                        <li><a href="/user/signup">Sign up</a></li>
+                        <li><a href="/user/login">Log in</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+        {% block body %}{% endblock %}
     </body>
+    {% block javascripts %}
+        <script language = "javascript"
+                src = "https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $(".add-to-cart").click(function () {
+                    var id = $(this).attr("data-id");
+
+                    $.post("/cart/add/"+id);
+
+                    // $.post("/cart/add/"+id, {}, function () {
+                    //     $("#cart-count").html(data);
+                    // });
+                    return false;
+                });
+            });
+        </script>
+    {% endblock %}
 </html>

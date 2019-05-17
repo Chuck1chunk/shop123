@@ -11,25 +11,6 @@ use App\Entity\Category;
 class CategoryController extends AbstractController
 {
     /**
-     * @Route("/category", name="category")
-     */
-    public function index()
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $category = new Category();
-        $category->setName('Hoodies');
-
-        $em->persist($category);
-
-        $em->flush();
-
-
-        return new Response('Saved category with id ' . $category->getId() . ' and name ' . $category->getName());
-
-    }
-
-    /**
      * @Route("/category/{id}", name="category_show")
      */
     public function show(Category $category)

@@ -1,12 +1,8 @@
 {% extends 'base.html.twig' %}
 {% block body %}
     <div class="container">
-        <h1>Log in</h1>
         {{ form_start(form) }}
         {{ form_widget(form) }}
         {{ form_end(form) }}
-        {% if (user == false) %}
-            <a href="/admin/notification/resetpassword">Reset password</a>
-        {% endif %}
     </div>
 {% endblock %}

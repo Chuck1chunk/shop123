@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <h3><a href="/">Categories</a></h3>
+                {% for category in categories %}
+                    <p><a href="/product/getby/category/{{ category.id }}">{{ category.name }}</a></p>
+                {% endfor %}
+            </div>
+
+            <div class="col-lg-9">
+                <h1>Products ({{ pagination.getTotalItemCount }})</h1>
+                <div class="row">
+                    {% for product in pagination %}
+                        <div class="col-lg-4">
+                            {% if(product.image) %}
+                                <img src="{{ product.image }}"
+                                     style="width: 100%">
+                            {% else %}
+                                <img src="{{ asset('/uploads/imagenotfound.png') }}"
+                                     style="width: 100%">
+                            {% endif %}
+                            <h4>{{ product.name }}</h4>
+                            <h5>{{ product.price }}</h5>
+                            <p>{{ product.description }}</p>
+                            {% if app.session.get('user') %}
+                                <a href="#" class="btn btn-outline-success add-to-cart"
+                                    id="addToCart" data-id="{{ product.id }}">Add</a>
+                            {% endif %}
+                            <hr>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>{#col-lg-9#}
+
+        </div>{#row#}
+    </div>{#    container#}
+    {{ knp_pagination_render(pagination) }}
+
+{% endblock %}

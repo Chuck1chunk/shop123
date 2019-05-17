@@ -2,99 +2,75 @@
 
 namespace App\Controller;
 
+use App\Entity\Cart;
 use App\Entity\Role;
 use App\Entity\User;
-
 use App\Form\UserEditType;
 use App\Form\UserLoginType;
 use App\Form\UserEmailType;
 use App\Form\UserResetPasswordType;
 use App\Form\UserType;
-
 use function MongoDB\BSON\fromJSON;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Email;
 
 class UserController extends Controller
 {
     /**
-     * @Route("/user/show", name="user_show")
-     */
-    public function showAllUsers()
-    {
-        $users = $this->getDoctrine()->getRepository(User::class)
-            ->findAll();
-        //->showAllUsers();
-
-
-        return $this->render('user/usersinfo.html.twig', [
-            'users' => $users,
-        ]);
-    }
-
-    /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      * @Route("user/signup")
      */
-    public function signup(Request $request)
+    public function signup(Request $request, Session $session)
     {
         $user = new User();
         $role = new Role();
 
         /*Form creating*/
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, array('csrf_protection' => false));
         $form->handleRequest($request);
 
         /*Checking form data for valid */
         if ($form->isSubmitted() && $form->isValid()) {
             //if ok
-
-            $userData = [
-                'name' => $user->getName(),
-                'email' => $user->getEmail(),
-                'password' => $user->getPassword(),
-                'address' => $user->getAddress(),
-                'PostIndex' => $user->getPostIndex()
-            ];
-
             $em = $this->getDoctrine()->getManager();
-            $res = $em->getRepository(User::class)->findOneBy([
-                'email' => $userData['email']
+            $userData = $em->getRepository(User::class)->findOneBy([
+                'email' => $user->getEmail()
             ]);
 
-            if (!$res) {
+            if (!$userData) {
 
-                $user->setName($userData['name']);
-                $user->setEmail($userData['email']);
-                $user->setPassword($userData['password']);
-                $user->setAddress($userData['address']);
-                $user->setPostIndex($userData['PostIndex']);
+                $user->setName($user->getName());
+                $user->setPassword($user->getPassword());
+                $user->setEmail($user->getEmail());
+                $user->setPostIndex($user->getPostIndex());
+                $user->setAddress($user->getAddress());
                 $user->setImage('SomeImage');
 
                 $em->persist($user);
                 $em->flush();
 
-                $userData['id'] = $user->getId();
-
-                $role->setUserId($userData['id']);
+                $role->setUserId($user->getId());
                 $role->setRole('user');
 
                 $em->persist($role);
                 $em->flush();
 
+                $session->set('user', $user);
+
                 return $this->render('user/cabinet.html.twig', [
-                    'user' => $userData
+                    'user' => $user
                 ]);
             }
             return new Response('Email is already taken');
         }
-        return $this->render('user/signup.html.twig', [
+        return $this->render('formbase.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -102,32 +78,35 @@ class UserController extends Controller
     /**
      * @Route("user/login", name="user_login")
      */
-    public function login(Request $request)
+    public function login(Request $request, Session $session)
     {
         $user = new User();
 
-        $form = $this->createForm(UserLoginType::class, $user);
+        $form = $this->createForm(UserLoginType::class, $user, array('csrf_protection' => false));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $email = $user->getEmail();
-            $pwd   = $user->getPassword();
-
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository(User::class)->findOneBy([
-                'email'    => $email,
-                'password' => $pwd,
+                'email'    => $user->getEmail(),
+                'password' => $user->getPassword(),
             ]);
 
             if ($user) {
-                return $this->render('user/cabinet.html.twig', [
-                    'user' => $user
-                ]);
-            }
-            //return new Response('404');
-        }
 
+                $session->set('user', $user);
+
+                if (self::checkIsAdmin($user->getId())) {
+                    return $this->render('admin/cabinet.html.twig', [
+                        'user' => $user,
+                    ]);
+                } else {
+                    return $this->redirectToRoute('user_cabinet');
+                }
+            }
+
+        }
         return $this->render('user/login.html.twig', [
            'form' => $form->createView(),
             'user' => $user
@@ -135,94 +114,78 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/reset_password")
+     * @Route("user/cabinet", name="user_cabinet")
      */
-    public function sendResetPasswordMail(Request $request, \Swift_Mailer $mailer)
+    public function enterToAcc(Session $session)
     {
-        $user = new User();
-
-        $form = $this->createForm(UserEmailType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted()) {
-            $email = $user->getEmail();
+        if ($session->get('user')) {
+            $userData = $session->get('user');
 
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository(User::class)->findOneBy([
-                'email' => $email
+                'email'    => $userData->getEmail(),
+                'password' => $userData->getPassword(),
             ]);
-
-            $id = $user->getId();
-
-            $message = (new \Swift_Message('Reset Password'))
-                ->setFrom('grisha.franch@gmail.com')
-                ->setTo($email)
-                ->setBody(
-                    '<a href="http://localhost:8000/user/change_password/'.$id.'">Reset password</a>',
-                    'text/html'
-                );
-
-            $mailer->send($message);
-            return new Response("success");
-        }
-
-        return $this->render('user/email.html.twig', [
-            'form' => $form->createView()
-        ]);
-    }
-
-    /**
-     * @Route("/user/change_password/{id}", name="user_changePwd")
-     */
-    public function changePassword(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository(User::class)->find($id);
-
-        $form = $this->createForm(UserResetPasswordType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted()) {
-
-            $pwd = $user->getPassword();
-            $user->setPassword($pwd);
-
-            $em->flush();
-
             return $this->render('user/cabinet.html.twig', [
                 'user' => $user
             ]);
+        } else {
+            return new Response('404');
+        }
+    }
+
+    /**
+     * @Route("user/logout", name="user_logout")
+     */
+    public function logout(Session $session)
+    {
+        $session->clear();
+        unset($session);
+        return $this->redirectToRoute('latestproduct');
+    }
+
+    /**
+     * @param $userId
+     * @return bool
+     */
+    public function checkIsAdmin($userId)
+    {
+        $role = $this->getDoctrine()->getRepository(Role::class)->findBy([
+                'userId' => $userId,
+            ]);
+
+        foreach ($role as $roleItem) {
+
+            if ($roleItem->getRole() == 'admin') {
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        return $this->render('user/resetpassword.html.twig', [
-            'form' => $form->createView()
-        ]);
     }
 
     /**
      * @Route("/user/edit/{id}")
      */
-    public function update(Request $request ,$id)
+    public function update(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(User::class)->find($id);
-
 
         $form = $this->createForm(UserEditType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $name = $user->getName();
-            $pwd  = $user->getPassword();
 
-            $user->setName($name);
-            $user->setPassword($pwd);
+            $user->setName($user->getName());
+            $user->setPassword($user->getPassword());
 
             $em->flush();
 
             return $this->redirectToRoute('user_show');
         }
-        return $this->render('user/edit.html.twig', [
+        return $this->render('formbase.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -235,11 +198,6 @@ class UserController extends Controller
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(User::class)->find($id);
 
-        if (!$user) {
-            throw $this->createNotFoundException(
-                'No user found for id '.$id
-            );
-        }
         $em->remove($user);
         $em->flush();
 

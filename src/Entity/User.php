@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Role;
 
 use Symfony\Component\Validator\Constraints as Assert;
 /**
@@ -19,17 +20,18 @@ class User
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $password;
 
@@ -48,7 +50,6 @@ class User
      * @ORM\Column(type="integer")
      */
     private $PostIndex;
-
 
     public function getId(): ?int
     {
@@ -129,6 +130,4 @@ class User
 
         return $this;
     }
-
-
 }

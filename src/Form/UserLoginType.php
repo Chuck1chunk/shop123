@@ -3,7 +3,6 @@
 
 namespace App\Form;
 
-
 use App\Entity\User;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
@@ -18,7 +17,6 @@ class UserLoginType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
             ->add('email', EmailType::class, [
                 'attr' => [
                     'placeholder' => 'Enter your email'
